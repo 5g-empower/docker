@@ -1,0 +1,29 @@
+logger:
+    file: /usr/local/var/log/open5gs/pgw.log
+
+parameter:
+
+pgw:
+    freeDiameter: /usr/local/etc/freeDiameter/pgw.conf
+    gtpc:
+      - addr: 127.0.0.3
+    gtpu:
+      - addr: 127.0.0.3
+    ue_pool:
+      - addr: 10.10.0.1/16
+        apn: 5glab
+        dev: pgwtun1010
+      - addr: cafe:1::1/64
+        apn: 5glab
+        dev: pgwtun1010
+      - addr: 10.20.0.1/16
+        apn: 5glab2
+        dev: pgwtun1020
+      - addr: cafe:1::1/64
+        apn: 5glab2
+        dev: pgwtun1020
+    dns:
+      - PRIMARY_DNS_REPLACE
+      - 8.8.4.4
+      - 2001:4860:4860::8888
+      - 2001:4860:4860::8844

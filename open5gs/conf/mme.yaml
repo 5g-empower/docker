@@ -1,0 +1,60 @@
+logger:
+    file: /usr/local/var/log/open5gs/mme.log
+    trace:
+        app: 1
+        s1ap: 1
+        nas: 1
+        diameter: 30
+        gtpv2: 1
+        gtp: 1
+
+parameter:
+
+mme:
+    freeDiameter: /usr/local/etc/freeDiameter/mme.conf
+    s1ap:
+    gtpc:
+    gummei: 
+      - plmn_id:
+          mcc: 222
+          mnc: 93
+        mme_gid: 2
+        mme_code: 1
+      - plmn_id:
+          mcc: 222
+          mnc: 94
+        mme_gid: 2
+        mme_code: 1
+      - plmn_id:
+          mcc: 222
+          mnc: 95
+        mme_gid: 2
+        mme_code: 1
+    tai:
+      - plmn_id:
+          mcc: 222
+          mnc: 93
+        tac: 1
+      - plmn_id:
+          mcc: 222
+          mnc: 94
+        tac: 1
+      - plmn_id:
+          mcc: 222
+          mnc: 95
+        tac: 1
+    security:
+        integrity_order : [ EIA1, EIA2, EIA0 ]
+        ciphering_order : [ EEA0, EEA1, EEA2 ]
+    network_name:
+        full: Open5GS
+
+sgw:
+    gtpc:
+      addr: 127.0.0.2
+
+pgw:
+    gtpc:
+      addr:
+        - 127.0.0.3
+        - ::1
