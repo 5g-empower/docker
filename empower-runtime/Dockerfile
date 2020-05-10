@@ -10,11 +10,13 @@ RUN buildDeps='python3-pip wget unzip' \
     && apt-get update \
     && apt-get install -y $buildDeps \
     && rm -rf /var/lib/apt/lists/* \
+    && pip3 install empower-core==1.0.1 \
     && pip3 install tornado==6.0.3 \
     && pip3 install python-stdnum==1.13 \
     && pip3 install construct==2.9.45 \
     && pip3 install pymodm==0.4.1 \
     && pip3 install influxdb==5.2.3 \
+    && pip3 install python-stdnum==1.13 \
     && wget https://github.com/5g-empower/empower-runtime/archive/master.zip \
     && unzip master.zip \
     && rm master.zip \
