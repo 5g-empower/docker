@@ -1,7 +1,7 @@
 ## build : docker build -t empower-runtime .
 ## run :   docker run --net=host --rm --privileged -it empower-runtime
 
-FROM ubuntu:20.04
+FROM ubuntu:19.10
 MAINTAINER Roberto Riggio <rriggio@fbk.eu>
 
 # Installing python dependencies
@@ -10,11 +10,11 @@ RUN buildDeps='python3-pip wget unzip' \
     && apt-get update \
     && apt-get install -y $buildDeps \
     && rm -rf /var/lib/apt/lists/* \
-    && pip3 install empower-core==1.0.1 \
-    && pip3 install tornado==6.0.3 \
-    && pip3 install construct==2.9.45 \
-    && pip3 install pymodm==0.4.1 \
-    && pip3 install influxdb==5.2.3 \
+    && pip3 install empower-core==1.0.2 \
+    && pip3 install tornado==6.0.34 \
+    && pip3 install construct==2.10.56 \
+    && pip3 install pymodm==0.4.2 \
+    && pip3 install influxdb==5.3.0 \
     && pip3 install python-stdnum==1.13 \
     && wget https://github.com/5g-empower/empower-runtime/archive/master.zip \
     && unzip master.zip \
@@ -25,7 +25,7 @@ RUN buildDeps='python3-pip wget unzip' \
     && apt-get purge -y --auto-remove $buildDeps
 
 # Run the controller
-ENTRYPOINT ["python3.8", "/empower-runtime-master/empower-runtime.py"]
+ENTRYPOINT ["python3.7", "/empower-runtime-master/empower-runtime.py"]
 
 # Expose Web GUI
 EXPOSE 8888
