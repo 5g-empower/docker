@@ -1,7 +1,7 @@
 ## build : docker build -t empower-runtime .
 ## run :   docker run --net=host --rm --privileged -it empower-runtime
 
-FROM ubuntu:19.10
+FROM ubuntu:20.04
 MAINTAINER Roberto Riggio <rriggio@fbk.eu>
 
 # Installing python dependencies
@@ -26,7 +26,7 @@ RUN buildDeps='python3-pip wget unzip' \
     && apt-get purge -y --auto-remove $buildDeps
 
 # Run the controller
-ENTRYPOINT ["python3.7", "/empower-runtime-master/empower-runtime.py"]
+ENTRYPOINT ["python3.8", "/empower-runtime-master/empower-runtime.py"]
 
 # Expose Web GUI
 EXPOSE 8888
