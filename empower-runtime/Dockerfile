@@ -10,7 +10,7 @@ RUN buildDeps='python3-pip wget unzip' \
     && apt-get update \
     && apt-get install -y $buildDeps \
     && rm -rf /var/lib/apt/lists/* \
-    && pip3 install empower-core==1.0.2 \
+    && pip3 install empower-core==1.0.3 \
     && pip3 install tornado==6.0.34 \
     && pip3 install construct==2.10.56 \
     && pip3 install pymodm==0.4.2 \
