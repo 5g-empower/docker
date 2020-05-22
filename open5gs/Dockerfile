@@ -34,14 +34,13 @@ WORKDIR /root
 
 ARG USER=open5gs
 ARG REPO=open5gs
-ARG BRANCH=master
-RUN	git clone https://github.com/$USER/$REPO
-ADD https://api.github.com/repos/$USER/$REPO/git/refs/heads/$BRANCH /root/open5gs-ver.json
+ARG TAG=v1.2.0
+RUN git clone https://github.com/$USER/$REPO
+ADD https://api.github.com/repos/$USER/$REPO/git/refs/tags/$TAG /root/open5gs-ver.json
 
-RUN	cd $REPO && \
-	git fetch && git checkout -f -B $BRANCH origin/$BRANCH && \
+RUN cd $REPO && \
+    git fetch && git checkout -f tags/$TAG && \
     meson build && ninja -C build install
-
 
 COPY conf/* /usr/local/etc/open5gs/
 ADD setup.sh /

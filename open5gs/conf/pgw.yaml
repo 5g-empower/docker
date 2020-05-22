@@ -1,5 +1,5 @@
 logger:
-    file: /usr/local/var/log/open5gs/pgw.log
+    file: /var/log/pgw.log
 
 parameter:
 

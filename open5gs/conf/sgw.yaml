@@ -1,5 +1,5 @@
 logger:
-    file: /usr/local/var/log/open5gs/sgw.log
+    file: /var/log/sgw.log
 
 parameter:
     no_ipv6: true
