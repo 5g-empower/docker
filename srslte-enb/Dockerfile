@@ -7,12 +7,16 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Dependencies for the UHD driver for the USRP hardware
 RUN apt-get update && \
-    apt-get -yq install cmake git libfftw3-dev libmbedtls-dev libboost-program-options-dev libconfig++-dev libsctp-dev libuhd-dev
+    apt-get -yq install cmake git libfftw3-dev libmbedtls-dev libboost-program-options-dev libconfig++-dev libsctp-dev libuhd-dev iproute2
+
+# Fetching empower-enb-proto
+RUN git clone https://github.com/5g-empower/empower-enb-agent.git
+RUN cd empower-enb-agent && cmake -DCMAKE_BUILD_TYPE=Release . && make && make install
 
 # Fetching srsLTE
-RUN git clone https://github.com/5g-empower/srsLTE.git && cd /srsLTE && git checkout tags/release_19_09
-ADD conf/CMakeLists.txt /srsLTE/
-RUN cd /srsLTE && mkdir build && cd build && cmake ../ && make && make install
+RUN git clone https://github.com/5g-empower/srsLTE-20.04.git && cd /srsLTE-20.04
+ADD conf/CMakeLists.txt /srsLTE-20.04/
+RUN cd /srsLTE-20.04 && mkdir build && cd build && cmake ../ && make && make install
 RUN ./usr/lib/uhd/utils/uhd_images_downloader.py
 
 # Add configuration files from SRS
@@ -35,8 +39,6 @@ ENV mcc=222
 ENV mnc=93
 ENV n_prb=25
 ENV dl_earfcn=3400
-
-RUN apt-get -yq install iproute2
 
 ADD launcher.sh /
 
