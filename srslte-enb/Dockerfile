@@ -1,8 +1,7 @@
-## build : docker build -t srsenb .
-## run :   docker run --net=host --rm --privileged -it srsenb
+ROM ubuntu:19.10
 
-FROM ubuntu:19.10
 MAINTAINER Giovanni Baggio <g.baggio@fbk.eu>
+
 ENV DEBIAN_FRONTEND noninteractive
 
 # Dependencies for the UHD driver for the USRP hardware
@@ -30,15 +29,10 @@ ADD conf/sib.conf.mbsfn /etc/srslte/
 ADD dns_replace.sh /
 
 # Set env variables
-ENV empower_controller=no
 ENV enb_id=0x19B
-ENV cell_id=0x03
-ENV phy_cell_id=3
-ENV tac=0x0001
 ENV mcc=222
 ENV mnc=93
 ENV n_prb=25
-ENV dl_earfcn=3400
 
 ADD launcher.sh /
 

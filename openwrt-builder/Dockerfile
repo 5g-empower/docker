@@ -1,6 +1,5 @@
-## build : docker build -t sensefbk/openwrt-builder .
-
 FROM ubuntu:18.04
+
 MAINTAINER Giovanni Baggio <g.baggio@fbk.eu>
 
 RUN apt-get update && \

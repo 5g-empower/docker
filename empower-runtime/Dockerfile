@@ -1,8 +1,6 @@
-## build : docker build -t empower-runtime .
-## run :   docker run --net=host --rm --privileged -it empower-runtime
-
 FROM ubuntu:19.10
-MAINTAINER Roberto Riggio <rriggio@fbk.eu>
+
+MAINTAINER Giovanni Baggio <g.baggio@fbk.eu>
 
 # Installing python dependencies
 RUN buildDeps='python3-pip wget unzip' \
