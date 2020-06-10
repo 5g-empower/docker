@@ -1,5 +1,5 @@
 #
-# Copyright 2013-2019 Software Radio Systems Limited
+# Copyright 2013-2020 Software Radio Systems Limited
 #
 # This file is part of srsLTE
 #
@@ -65,7 +65,9 @@ configure_file(
 option(ENABLE_SRSUE    "Build srsUE application"                  OFF)
 option(ENABLE_SRSENB   "Build srsENB application"                 ON)
 option(ENABLE_SRSEPC   "Build srsEPC application"                 OFF)
+option(ENABLE_5GNR     "Build with 5G-NR components"              OFF)
 option(DISABLE_SIMD    "disable simd instructions"                OFF)
+option(AUTO_DETECT_ISA "Autodetect supported ISA extensions"      ON)
 
 option(ENABLE_GUI      "Enable GUI (using srsGUI)"                OFF)
 option(ENABLE_UHD      "Enable UHD"                               ON)
@@ -75,33 +77,61 @@ option(ENABLE_ZEROMQ   "Enable ZeroMQ"                            ON)
 option(ENABLE_HARDSIM  "Enable support for SIM cards"             ON)
 
 option(ENABLE_TTCN3    "Enable TTCN3 test binaries"               OFF)
+option(ENABLE_ZMQ_TEST "Enable ZMQ based E2E tests"               OFF)
+
+option(ENABLE_EMPOWERAGENTPROTO "Enable Empower Agent"            ON)
 
 option(BUILD_STATIC    "Attempt to statically link external deps" OFF)
 option(RPATH           "Enable RPATH"                             OFF)
 option(ENABLE_ASAN     "Enable gcc/clang address sanitizer"       OFF)
+option(ENABLE_GCOV     "Enable gcc/clang address sanitizer"       OFF)
 option(ENABLE_MSAN     "Enable clang memory sanitizer"            OFF)
 option(ENABLE_TIDY     "Enable clang tidy"                        OFF)
 
 option(USE_LTE_RATES   "Use standard LTE sampling rates"          OFF)
-option(USE_GLIBC_IPV6  "Use glibc's own ipv6.h"                   ON)
+option(USE_MKL         "Use MKL instead of fftw"                  OFF)
 
-set(GCC_ARCH native CACHE STRING "GCC compile for specific architecture.")
+option(ENABLE_TIMEPROF "Enable time profiling"                    ON)
 
+option(FORCE_32BIT     "Add flags to force 32 bit compilation"    OFF)
+
+if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
+  set(GCC_ARCH armv8-a CACHE STRING "GCC compile for specific architecture.")
+  message(STATUS "Detected aarch64 processor")
+else(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
+  set(GCC_ARCH native CACHE STRING "GCC compile for specific architecture.")
+endif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
+
+if (ENABLE_5GNR)
+  add_definitions(-DHAVE_5GNR)
+endif (ENABLE_5GNR)
 
 ########################################################################
 # Find dependencies
 ########################################################################
 
+# Enable ccache if not already enabled
+find_program(CCACHE_EXECUTABLE ccache)
+mark_as_advanced(CCACHE_EXECUTABLE)
+if(CCACHE_EXECUTABLE)
+  foreach(LANG C CXX)
+    if(NOT DEFINED CMAKE_${LANG}_COMPILER_LAUNCHER AND NOT CMAKE_${LANG}_COMPILER MATCHES ".*/ccache$")
+      message(STATUS "Enabling ccache for ${LANG}")
+      set(CMAKE_${LANG}_COMPILER_LAUNCHER ${CCACHE_EXECUTABLE} CACHE STRING "")
+    endif()
+  endforeach()
+endif()
+
 # Threads
 find_package(Threads REQUIRED)
 
 # FFT
-find_package(MKL)
-if(MKL_FOUND)
+if(USE_MKL)
+  find_package(MKL REQUIRED)
   include_directories(${MKL_INCLUDE_DIRS})
   link_directories(${MKL_LIBRARY_DIRS})
   set(FFT_LIBRARIES "${MKL_STATIC_LIBRARIES}") # Static by default
-else(MKL_FOUND)
+else(USE_MKL)
   find_package(FFTW3F REQUIRED)
   if(FFTW3F_FOUND)
     include_directories(${FFTW3F_INCLUDE_DIRS})
@@ -113,7 +143,7 @@ else(MKL_FOUND)
     endif(BUILD_STATIC)
     message(STATUS "FFT_LIBRARIES: " ${FFT_LIBRARIES})
   endif(FFTW3F_FOUND)
-endif(MKL_FOUND)
+endif(USE_MKL)
 
 # Crypto
 find_package(Polarssl)
@@ -188,6 +218,11 @@ if(ENABLE_ZEROMQ)
   endif(ZEROMQ_FOUND)
 endif(ENABLE_ZEROMQ)
 
+# TimeProf
+if(ENABLE_TIMEPROF)
+    add_definitions(-DENABLE_TIMEPROF)
+endif(ENABLE_TIMEPROF)
+
 if(BLADERF_FOUND OR UHD_FOUND OR SOAPYSDR_FOUND OR ZEROMQ_FOUND)
   set(RF_FOUND TRUE CACHE INTERNAL "RF frontend found")
 else(BLADERF_FOUND OR UHD_FOUND OR SOAPYSDR_FOUND OR ZEROMQ_FOUND)
@@ -242,6 +277,15 @@ if (ENABLE_TTCN3)
   message(STATUS "Building with TTCN3 binaries")
 endif (ENABLE_TTCN3)
 
+# EmpowerAgentProto
+set(EmpowerAgentProto_DIR /usr/local/lib)
+if (ENABLE_EMPOWERAGENTPROTO)
+  find_package(EmpowerAgentProto REQUIRED)
+  include_directories(${EMPOWERAGENTPROTO_INCLUDE_DIRS})
+  link_directories(${EMPOWERAGENTPROTO_LIBRARY_DIRS})
+  message(STATUS "Building with EmpowerAgentProto")
+endif (ENABLE_EMPOWERAGENTPROTO)
+
 ########################################################################
 # Install Dirs
 ########################################################################
@@ -268,6 +312,9 @@ configure_file(
 )
 install(PROGRAMS ${CMAKE_BINARY_DIR}/srslte_install_configs.sh DESTINATION ${RUNTIME_DIR})
 
+# Disables the project to build when calling "make install"
+set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
+
 ########################################################################
 # Compiler specific setup
 ########################################################################
@@ -288,9 +335,15 @@ macro(ADD_C_COMPILER_FLAG_IF_AVAILABLE flag have)
 endmacro(ADD_C_COMPILER_FLAG_IF_AVAILABLE)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-comment -Wno-reorder -Wno-unused-but-set-variable -Wno-unused-variable -Wtype-limits -std=c++11")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-comment -Wno-reorder -Wno-unused-variable -Wtype-limits -std=c++11")
 
-  find_package(SSE)
+  ADD_C_COMPILER_FLAG_IF_AVAILABLE("-Wno-unused-but-set-variable" HAVE_WNO_UNUSED_BUT_SET_VARIABLE)
+  ADD_CXX_COMPILER_FLAG_IF_AVAILABLE("-Wno-unused-but-set-variable" HAVE_WNO_UNUSED_BUT_SET_VARIABLE)
+
+  if (AUTO_DETECT_ISA)
+    find_package(SSE)
+  endif (AUTO_DETECT_ISA)
+
   if (HAVE_AVX2)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=${GCC_ARCH} -mfpmath=sse -mavx2 -DLV_HAVE_AVX2 -DLV_HAVE_AVX -DLV_HAVE_SSE")
   else (HAVE_AVX2)
@@ -304,6 +357,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   if(NOT WIN32)
       ADD_CXX_COMPILER_FLAG_IF_AVAILABLE(-fvisibility=hidden HAVE_VISIBILITY_HIDDEN_CXX)
   endif(NOT WIN32)
+
+  if(FORCE_32BIT)
+    ADD_C_COMPILER_FLAG_IF_AVAILABLE("-m32" HAVE_WNO_UNUSED_BUT_SET_VARIABLE)
+    ADD_CXX_COMPILER_FLAG_IF_AVAILABLE("-m32" HAVE_WNO_UNUSED_BUT_SET_VARIABLE)
+    set(CMAKE_SHARED_LINKER_FLAGS "-m32")
+  endif(FORCE_32BIT)
+
 endif(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
 ADD_C_COMPILER_FLAG_IF_AVAILABLE("-Werror=incompatible-pointer-types" HAVE_ERROR_INCOMPATIBLE)
@@ -329,12 +389,9 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DFORCE_STANDARD_RATE")
   endif (USE_LTE_RATES)
 
-  if (USE_GLIBC_IPV6)
-    message(STATUS "Using default glibc header for IPv6 support.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_GLIBC_IPV6")
-  endif (USE_GLIBC_IPV6)
-
-  find_package(SSE)
+  if (AUTO_DETECT_ISA)
+    find_package(SSE)
+  endif (AUTO_DETECT_ISA)
   if (HAVE_AVX2)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=${GCC_ARCH} -mfpmath=sse -mavx2 -DLV_HAVE_AVX2 -DLV_HAVE_AVX -DLV_HAVE_SSE")
   else (HAVE_AVX2)
@@ -360,14 +417,23 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     endif(HAVE_SSE)
   endif(NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
-  if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm" OR ${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DIS_ARM -DHAVE_NEON -mfloat-abi=hard -mfpu=neon")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DIS_ARM -mfloat-abi=hard -mfpu=neon")
+  if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm" OR ${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch" OR ${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DIS_ARM -DHAVE_NEON")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DIS_ARM")
     message(STATUS "Detected ARM processor")
     set(HAVE_NEON "True")
-  else(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm" OR ${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch")
+    if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
+      set(HAVE_NEONv8 "True")
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DHAVE_NEONv8")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_NEONv8")
+    endif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
+    if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfloat-abi=hard -mfpu=neon")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfloat-abi=hard -mfpu=neon")
+    endif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
+  else(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm" OR ${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch" OR ${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
     set(HAVE_NEON "False")
-  endif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm" OR ${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch")
+  endif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm" OR ${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch" OR ${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
   set(CMAKE_REQUIRED_FLAGS ${CMAKE_C_FLAGS})
 
   if(NOT HAVE_SSE AND NOT HAVE_NEON AND NOT DISABLE_SIMD)
@@ -392,6 +458,11 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=memory -fno-omit-frame-pointer -fPIE -pie")
   endif (ENABLE_MSAN AND CMAKE_C_COMPILER_ID MATCHES "Clang")
 
+  if (ENABLE_GCOV)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
+  endif (ENABLE_GCOV)
+
 endif(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -399,6 +470,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    set(CMAKE_SHARED_LINKER_FLAGS "-undefined dynamic_lookup")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
+# Add colored output when using the Ninja generator
+if("Ninja" STREQUAL ${CMAKE_GENERATOR})
+   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdiagnostics-color=always")
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=always")
+endif()
 
 # Add -Werror to C/C++ flags for newer compilers
 if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
@@ -437,6 +513,12 @@ configure_file(
 
 add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+
+########################################################################
+# Create optional target to build osmo-gsm-tester trial
+########################################################################
+add_custom_target(trial
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/build_trial.sh)
 
 ########################################################################
 # Add -fPIC property to all targets
@@ -497,3 +579,5 @@ if(ENABLE_SRSEPC)
 else(ENABLE_SRSEPC)
   message(STATUS "srsEPC build disabled")
 endif(ENABLE_SRSEPC)
+
+add_subdirectory(test)

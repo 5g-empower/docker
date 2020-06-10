@@ -1,4 +1,4 @@
-ROM ubuntu:19.10
+FROM ubuntu:19.10
 
 MAINTAINER Giovanni Baggio <g.baggio@fbk.eu>
 
