@@ -11,7 +11,7 @@ RUN buildDeps='python3-pip wget unzip' \
     && pip3 install empower-core==1.0.5 \
     && pip3 install tornado==6.0.4 \
     && pip3 install construct==2.10.56 \
-    && pip3 install pymodm==0.4.2 \
+    && pip3 install pymodm==0.4.3 \
     && pip3 install influxdb==5.3.0 \
     && pip3 install python-stdnum==1.13 \
     && wget https://github.com/5g-empower/empower-runtime/archive/master.zip \
