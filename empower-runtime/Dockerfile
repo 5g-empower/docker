@@ -1,4 +1,4 @@
-FROM ubuntu:19.10
+FROM ubuntu:20.04
 
 MAINTAINER Giovanni Baggio <g.baggio@fbk.eu>
 
@@ -15,6 +15,7 @@ RUN buildDeps='python3-pip wget unzip' \
     && pip3 install pymodm==0.4.3 \
     && pip3 install influxdb==5.3.0 \
     && pip3 install python-stdnum==1.13 \
+    && pip3 install requests==2.23.0 \
     && wget https://github.com/5g-empower/empower-runtime/archive/master.zip \
     && unzip master.zip \
     && rm master.zip \
@@ -23,8 +24,11 @@ RUN buildDeps='python3-pip wget unzip' \
     && ln -s /empower-runtime-master/webui/ /var/www/empower
     #&& apt-get purge -y --auto-remove $buildDeps
 
+# Add configuration files from SRS
+ADD conf/runtime.cfg /etc/empower/
+
 # Run the controller
-ENTRYPOINT ["python3.7", "/empower-runtime-master/empower-runtime.py"]
+ENTRYPOINT ["python3", "/empower-runtime-master/empower-runtime.py"]
 
 # Expose Web GUI
 EXPOSE 8888
