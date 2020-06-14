@@ -1,12 +1,8 @@
 
 sed -i 's/ENB_ID_REPLACE/'$enb_id'/g' /etc/srslte/enb.conf
-sed -i 's/PHY_CELL_ID_REPLACE/'$phy_cell_id'/g' /etc/srslte/enb.conf
-sed -i 's/CELL_ID_REPLACE/'$cell_id'/g' /etc/srslte/enb.conf
-sed -i 's/TAC_REPLACE/'$tac'/g' /etc/srslte/enb.conf
 sed -i 's/MCC_REPLACE/'$mcc'/g' /etc/srslte/enb.conf
 sed -i 's/MNC_REPLACE/'$mnc'/g' /etc/srslte/enb.conf
 sed -i 's/N_PRB_REPLACE/'$n_prb'/g' /etc/srslte/enb.conf
-sed -i 's/DL_EARFCN_REPLACE/'$dl_earfcn'/g' /etc/srslte/enb.conf
 
 
 if [ "$empower_controller" = "yes" ]; then

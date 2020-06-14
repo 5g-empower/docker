@@ -7,6 +7,7 @@ RUN buildDeps='python3-pip wget unzip' \
     && set -x \
     && apt-get update \
     && apt-get install -y $buildDeps \
+    && apt-get install -y python3 \
     && rm -rf /var/lib/apt/lists/* \
     && pip3 install empower-core==1.0.5 \
     && pip3 install tornado==6.0.4 \
@@ -19,8 +20,8 @@ RUN buildDeps='python3-pip wget unzip' \
     && rm master.zip \
     && ln -sf /empower-runtime-master/conf/ /etc/empower \
     && mkdir -p /var/www/ \
-    && ln -s /empower-runtime-master/webui/ /var/www/empower \
-    && apt-get purge -y --auto-remove $buildDeps
+    && ln -s /empower-runtime-master/webui/ /var/www/empower
+    #&& apt-get purge -y --auto-remove $buildDeps
 
 # Run the controller
 ENTRYPOINT ["python3.7", "/empower-runtime-master/empower-runtime.py"]
