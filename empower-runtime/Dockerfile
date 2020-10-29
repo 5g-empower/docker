@@ -1,6 +1,8 @@
+# docker build -t empower-runtime .
+# docker run -d empower-runtime
 FROM ubuntu:20.04
 
-MAINTAINER Giovanni Baggio <g.baggio@fbk.eu>
+MAINTAINER Roberto Riggio <roberto.riggio@gmail.com>
 
 # Installing python dependencies
 RUN buildDeps='python3-pip wget unzip' \
@@ -24,7 +26,7 @@ RUN buildDeps='python3-pip wget unzip' \
     && ln -s /empower-runtime-master/webui/ /var/www/empower
     #&& apt-get purge -y --auto-remove $buildDeps
 
-# Add configuration files from SRS
+# Add configuration files
 ADD conf/runtime.cfg /etc/empower/
 
 # Run the controller

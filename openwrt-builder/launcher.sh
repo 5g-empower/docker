@@ -10,7 +10,8 @@ cd ~/openwrt
 ./scripts/feeds install -a
 mkdir files
 
-TARGETS="apu2d wdr4300 wndr4300 alix2d"
+TARGETS="apu2c wdr4300 wndr4300 alix2d"
+
 
 for TARGET in $TARGETS; do
 
@@ -22,13 +23,11 @@ for TARGET in $TARGETS; do
 	make defconfig
 
 	echo "Begin compilation"
-	make -j1 V=s
+	make #-j1 V=s
 	echo "End compilation"
 
 done
 
 FOLDER_NAME="$(date +"%Y-%m-%d-%H:%M")"
-rm -r /builds/$FOLDER_NAME
-mkdir /builds/$FOLDER_NAME
-cp -r ~/openwrt/bin /builds/$FOLDER_NAME/
-
+mkdir -p ~/builds/$FOLDER_NAME
+cp -r ~/openwrt/bin ~/builds/$FOLDER_NAME/

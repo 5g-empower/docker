@@ -1,6 +1,8 @@
-FROM ubuntu:18.04
+# docker build -t openwrt-builder .
+# docker run -d -v ~/src/builds:/home/build-user/builds openwrt-builder
+FROM ubuntu:20.04
 
-MAINTAINER Giovanni Baggio <g.baggio@fbk.eu>
+MAINTAINER Roberto Riggio <roberto.riggio@gmail.com>
 
 RUN apt-get update && \
     apt-get -y install build-essential libncurses5-dev unzip python2.7
@@ -11,7 +13,7 @@ RUN useradd -ms /bin/bash build-user
 ADD launcher.sh /
 
 USER build-user
-WORKDIR /home/newuser
+WORKDIR /home/build-user
 
 # Run the launcher script
 ENTRYPOINT ["/launcher.sh"]
