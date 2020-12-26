@@ -11,8 +11,8 @@ RUN buildDeps='python3-pip wget unzip' \
     && apt-get install -y $buildDeps \
     && apt-get install -y python3 \
     && rm -rf /var/lib/apt/lists/* \
-    && pip3 install empower-core==1.0.5 \
-    && pip3 install tornado==6.0.4 \
+    && pip3 install empower-core==1.0.7 \
+    && pip3 install tornado==6.1 \
     && pip3 install construct==2.10.56 \
     && pip3 install pymodm==0.4.3 \
     && pip3 install influxdb==5.3.0 \
