@@ -3,7 +3,7 @@ FROM node:carbon
 MAINTAINER Sukchan Lee <acetcom@gmail.com>
 
 ARG PACKAGE=open5gs
-ARG VERSION=1.0.0
+ARG VERSION=2.2.6
 
 RUN set -e; \
     cd /usr/src; \
@@ -16,11 +16,6 @@ WORKDIR /usr/src/open5gs/webui
 RUN npm install && \
     npm run build
 
-RUN apt update
-RUN apt install -y netcat
-
-ADD launcher.sh /
-ENTRYPOINT ["/launcher.sh"]
+CMD HOSTNAME="0.0.0.0" npm run start
 
 EXPOSE 3000
-
