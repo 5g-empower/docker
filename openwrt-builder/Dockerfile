@@ -1,5 +1,5 @@
-# docker build -t openwrt-builder .
-# docker run -d -v ~/src/builds:/home/build-user/builds openwrt-builder
+# docker build -t snslab/openwrt-builder .
+# docker run -d -v ~/src/builds:/home/build-user/builds snslab/openwrt-builder
 FROM ubuntu:20.04
 
 MAINTAINER Roberto Riggio <roberto.riggio@gmail.com>
