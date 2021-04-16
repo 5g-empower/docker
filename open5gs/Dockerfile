@@ -1,6 +1,12 @@
-FROM ubuntu:18.04
+# docker build -t snslab/open5gs .
+# docker run -d --name=open5gs --privileged snslab/open5gs
+FROM ubuntu:20.04
 
-MAINTAINER Giovanni Baggio <g.baggio@fbk.eu>
+MAINTAINER Roberto Riggio <roberto.riggio@gmail.com>
+
+ENV DEBIAN_FRONTEND noninteractive
+
+ARG TAG=2.2.6
 
 RUN apt-get update && \
     apt-get upgrade -y && \
@@ -21,32 +27,25 @@ RUN apt-get update && \
         libmongoc-dev \
         libbson-dev \
         libyaml-dev \
-        iproute2 \
-        ca-certificates \
-        netbase \
+        libnghttp2-dev \
+        libmicrohttpd-dev \
+        libcurl4-gnutls-dev \
+        meson \
         netcat \
-        iptables \
-        pkg-config && \
-    apt-get clean
-RUN python3 -m pip install meson
-
-WORKDIR /root
-
-ARG USER=open5gs
-ARG REPO=open5gs
-ARG TAG=v1.2.0
-RUN git clone https://github.com/$USER/$REPO
-ADD https://api.github.com/repos/$USER/$REPO/git/refs/tags/$TAG /root/open5gs-ver.json
-
-RUN cd $REPO && \
-    git fetch && git checkout -f tags/$TAG && \
-    meson build && ninja -C build install
+        iproute2 \
+        wget \
+        unzip \
+        iptables && \
+    wget https://github.com/open5gs/open5gs/archive/v$TAG.zip && \
+    unzip v$TAG.zip && \
+    rm v$TAG.zip && \
+    cd open5gs-$TAG && \
+    meson build && \
+    ninja -C build install
 
 COPY conf/* /usr/local/etc/open5gs/
+
 ADD setup.sh /
 ADD launcher.sh /
 
-ENV k8s_dns=no
-
 ENTRYPOINT ["/launcher.sh"]
-
