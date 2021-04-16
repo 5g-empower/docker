@@ -1,5 +1,5 @@
-# docker build -t empower-runtime .
-# docker run -d empower-runtime
+# docker build -t snslab/empower-runtime .
+# docker run -d snslab/empower-runtime
 FROM ubuntu:20.04
 
 MAINTAINER Roberto Riggio <roberto.riggio@gmail.com>
