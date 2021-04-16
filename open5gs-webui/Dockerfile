@@ -1,3 +1,5 @@
+# docker build -t snslab/open5gs-webui .
+# docker run -d --name=open5gs-webui snslab/open5gs-webui
 FROM node:carbon
 
 MAINTAINER Sukchan Lee <acetcom@gmail.com>
