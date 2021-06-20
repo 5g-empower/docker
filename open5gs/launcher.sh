@@ -34,4 +34,3 @@ sleep 10
 /usr/local/bin/open5gs-pcfd -D
 /usr/local/bin/open5gs-nssfd -D
 /usr/local/bin/open5gs-udrd
-

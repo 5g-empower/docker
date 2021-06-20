@@ -6,7 +6,7 @@ MAINTAINER Roberto Riggio <roberto.riggio@gmail.com>
 
 ENV DEBIAN_FRONTEND noninteractive
 
-ARG TAG=2.2.6
+ARG TAG=2.3.0
 
 RUN apt-get update && \
     apt-get upgrade -y && \
