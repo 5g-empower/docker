@@ -29,8 +29,11 @@ RUN buildDeps='python3-pip wget unzip' \
 # Add configuration files
 ADD conf/runtime.cfg /etc/empower/
 
-# Run the controller
-ENTRYPOINT ["python3", "/empower-runtime-master/empower-runtime.py"]
+# Run the launcher
+ADD launcher.sh /
+
+# Define the entrypoint
+ENTRYPOINT ["/launcher.sh"]
 
 # Expose Web GUI
 EXPOSE 8888

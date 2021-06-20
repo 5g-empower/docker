@@ -12,7 +12,7 @@
 
 Checkout out our [website](http://5g-empower.io/) and our [wiki](https://github.com/5g-empower/5g-empower.github.io/wiki)
 
-This repository contains the Dockerfile for the follow 5G-EmPOWER components:
+This repository contains the Dockerfile for the following 5G-EmPOWER components:
 
 1. The 5G-EmPOWER Runtime
 2. The Open5GS EPC
