@@ -18,6 +18,6 @@ WORKDIR /usr/src/open5gs/webui
 RUN npm install && \
     npm run build
 
-CMD HOSTNAME="0.0.0.0" npm run start
+CMD npm run start
 
 EXPOSE 3000
