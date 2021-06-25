@@ -8,11 +8,11 @@ if [ -z "$empower_pod_addr" ]; then
     done
 
     echo "5G-EmPOWER Runtime service found"
-    EMPOWER_SERVICE_ADDR=$(getent hosts empower-service | awk '{ print $1 }')
+    EMPOWER_POR_ADDR=$(getent hosts empower-service | awk '{ print $1 }')
 
 else
 
-    EMPOWER_SERVICE_ADDR=$empower_pod_addr
+    EMPOWER_POR_ADDR=$empower_pod_addr
 
 fi
 
@@ -40,4 +40,4 @@ fi
 sed -i 's/ENB_ID_REPLACE/'$enb_id'/g' /etc/srsran/enb.conf
 sed -i 's/EPC_REPLACE/'"$EPC_POD_ADDR"'/g' /etc/srsran/enb.conf
 sed -i 's/LOCAL_REPLACE/'$LOCAL_POD_ADDR'/g' /etc/srsran/enb.conf
-sed -i 's/EMPOWER_REPLACE/'$EMPOWER_ADDR'/g' /etc/srsran/enb.conf
+sed -i 's/EMPOWER_REPLACE/'$EMPOWER_POR_ADDR'/g' /etc/srsran/enb.conf
