@@ -18,6 +18,6 @@ WORKDIR /usr/src/open5gs/webui
 RUN npm install && \
     npm run build
 
-CMD npm run start
+CMD npm run dev
 
 EXPOSE 3000
