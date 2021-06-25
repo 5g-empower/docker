@@ -5,7 +5,7 @@ FROM node:carbon
 MAINTAINER Sukchan Lee <acetcom@gmail.com>
 
 ARG PACKAGE=open5gs
-ARG VERSION=2.2.8
+ARG VERSION=2.3.0
 
 RUN set -e; \
     cd /usr/src; \
@@ -18,6 +18,6 @@ WORKDIR /usr/src/open5gs/webui
 RUN npm install && \
     npm run build
 
-CMD npm run start
+CMD npm run dev
 
 EXPOSE 3000
