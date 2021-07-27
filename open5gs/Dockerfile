@@ -45,6 +45,10 @@ RUN apt-get update && \
 
 COPY conf/* /usr/local/etc/open5gs/
 
+RUN sh -c "echo /open5gs/install/lib/x86_64-linux-gnu > /etc/ld.so.conf.d/open5gs.conf"
+
+RUN /bin/sh -c ldconfig
+
 ADD setup.sh /
 ADD launcher.sh /
 
