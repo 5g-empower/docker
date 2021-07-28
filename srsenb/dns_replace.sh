@@ -7,6 +7,8 @@ if [ -z "$empower_pod_addr" ]; then
         sleep 10
     done
 
+    sleep 10
+
     EMPOWER_POR_ADDR=$(getent hosts empower-service | awk '{ print $1 }')
     echo "5G-EmPOWER Runtime service found: $EMPOWER_POR_ADDR"
 
@@ -28,6 +30,8 @@ if [ -z "$epc_pod_addr" ]; then
         getent hosts epc-service
 
     done
+
+    sleep 10
 
     EPC_POD_ADDR=$(getent hosts epc-service | awk '{ print $1 }')
     echo "EPC service found: $EPC_POD_ADDR"
