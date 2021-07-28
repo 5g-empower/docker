@@ -7,8 +7,8 @@ if [ -z "$empower_pod_addr" ]; then
         sleep 10
     done
 
-    echo "5G-EmPOWER Runtime service found"
     EMPOWER_POR_ADDR=$(getent hosts empower-service | awk '{ print $1 }')
+    echo "5G-EmPOWER Runtime service found: $EMPOWER_POR_ADDR"
 
 else
 
@@ -18,14 +18,19 @@ fi
 
 if [ -z "$epc_pod_addr" ]; then
 
+    getent hosts epc-service
+
     while [ -z $(getent hosts epc-service | awk '{ print $1 }') ]
     do
         echo "Waiting for the EPC to come up..."
         sleep 10
+
+        getent hosts epc-service
+
     done
 
-    echo "EPC service found"
     EPC_POD_ADDR=$(getent hosts epc-service | awk '{ print $1 }')
+    echo "EPC service found: $EPC_POD_ADDR"
 
 else
     EPC_POD_ADDR=$epc_pod_addr
@@ -33,6 +38,7 @@ fi
 
 if [ -z "$local_pod_addr" ]; then
     LOCAL_POD_ADDR=$(ip route get 1 | awk '{print $(NF-2);exit}')
+    echo "Local POD Addr: $LOCAL_POD_ADDR"
 else
     LOCAL_POD_ADDR=$local_pod_addr
 fi
