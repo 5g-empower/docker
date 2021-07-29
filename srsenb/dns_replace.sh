@@ -20,15 +20,10 @@ fi
 
 if [ -z "$epc_pod_addr" ]; then
 
-    getent hosts epc-service
-
     while [ -z $(getent hosts epc-service | awk '{ print $1 }') ]
     do
         echo "Waiting for the EPC to come up..."
         sleep 10
-
-        getent hosts epc-service
-
     done
 
     sleep 10
