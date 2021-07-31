@@ -39,6 +39,9 @@ ADD dns_replace.sh /
 
 # Set env variables
 ENV enb_id=0x19B
+ENV mcc=001
+ENV mnc=01
+ENV n_prb=50
 
 # Add launcher script
 ADD launcher.sh /

@@ -19,8 +19,7 @@
 #    domain: core,s1ap,nas,fd,gtp,mme,emm,esm,event,tlv,mem,sock
 #
 logger:
-    file: /var/local/log/open5gs/mme.log
-
+    file: /open5gs/install/var/log/open5gs/mme.log
 #
 # mme:
 #
@@ -206,21 +205,21 @@ logger:
 #    relative_capacity: 100
 #
 mme:
-    freeDiameter: /usr/local/etc/freeDiameter/mme.conf
+    freeDiameter: /open5gs/install/etc/freeDiameter/mme.conf
     s1ap:
     gtpc:
       - addr: 127.0.0.2
     gummei: 
       plmn_id:
-        mcc: 222 
-        mnc: 93 
+        mcc: MCC_REPLACE
+        mnc: MNC_REPLACE
       mme_gid: 2
       mme_code: 1
     tai:
       plmn_id:
-        mcc: 222 
-        mnc: 93 
-      tac: 7 
+        mcc: MCC_REPLACE
+        mnc: MNC_REPLACE
+      tac: TAC_REPLACE
     security:
         integrity_order : [ EIA2, EIA1, EIA0 ]
         ciphering_order : [ EEA0, EEA1, EEA2 ]
@@ -329,10 +328,13 @@ smf:
     gtpc:
       - addr:
         - 127.0.0.4
-        - ::1
+#        - ::1
 
 #
 # parameter:
+#
+#  o Number of output streams per SCTP associations.
+#      sctp_streams: 30
 #
 #  o Disable use of IPv4 addresses (only IPv6)
 #      no_ipv4: true
@@ -342,6 +344,12 @@ smf:
 #
 #  o Prefer IPv4 instead of IPv6 for estabishing new GTP connections.
 #      prefer_ipv4: true
+#
+#  o Enable Multicast traffic to the UE
+#      multicast: true
+#
+#  o Disable Stateless Address Autoconfiguration for IPv6
+#      no_slaac: true
 #
 #  o Use OAI UE
 #    - Remove HashMME in Security-mode command message
@@ -385,23 +393,17 @@ max:
 pool:
 
 #
-# sockopt:
-#    no_delay : true
-#
-sockopt:
-
-#
 # sctp:
-#    heartbit_interval : 5000 (5secs)
-#    sack_delay : 200 (200ms)
-#    rto_initial : 3000 (3secs)
-#    rto_min : 1000 (1sec)
-#    rto_max : 5000 (5secs)
-#    max_num_of_ostreams : 30
-#    max_num_of_istreams : 65535
-#    max_attempts : 4
-#    max_initial_timeout : 8000(8secs)
-#    usrsctp_udp_port : 9899
+#
+#  o heartbit_interval : 5000 (5secs)
+#  o rto_initial : 3000 (3secs)
+#  o rto_min : 1000 (1sec)
+#  o rto_max : 5000 (5secs)
+#  o max_num_of_ostreams : 30
+#  o max_num_of_istreams : 65535
+#  o max_attempts : 4
+#  o max_initial_timeout : 8000(8secs)
+#  o usrsctp_udp_port : 9899
 #
 sctp:
 

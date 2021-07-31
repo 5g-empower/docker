@@ -1,3 +1,4 @@
+#!/bin/bash
 
 if [ -z "$empower_pod_addr" ]; then
 
@@ -20,15 +21,15 @@ fi
 
 if [ -z "$epc_pod_addr" ]; then
 
-    while [ -z $(getent hosts epc-service | awk '{ print $1 }') ]
+    EPC_POD_ADDR=$(getent hosts epc-service | awk '{ print $1 }')
+
+    while [ -z "$EPC_POD_ADDR" ]
     do
         echo "Waiting for the EPC to come up..."
         sleep 10
+        EPC_POD_ADDR=$(getent hosts epc-service | awk '{ print $1 }')
     done
 
-    sleep 10
-
-    EPC_POD_ADDR=$(getent hosts epc-service | awk '{ print $1 }')
     echo "EPC service found: $EPC_POD_ADDR"
 
 else
@@ -43,6 +44,9 @@ else
 fi
 
 sed -i 's/ENB_ID_REPLACE/'$enb_id'/g' /etc/srsran/enb.conf
+sed -i 's/MCC_REPLACE/'$mcc'/g' /etc/srsran/enb.conf
+sed -i 's/MNC_REPLACE/'$mnc'/g' /etc/srsran/enb.conf
+sed -i 's/N_PRB_REPLACE/'$n_prb'/g' /etc/srsran/enb.conf
 sed -i 's/EPC_REPLACE/'"$EPC_POD_ADDR"'/g' /etc/srsran/enb.conf
 sed -i 's/LOCAL_REPLACE/'$LOCAL_POD_ADDR'/g' /etc/srsran/enb.conf
 sed -i 's/EMPOWER_REPLACE/'$EMPOWER_POR_ADDR'/g' /etc/srsran/enb.conf

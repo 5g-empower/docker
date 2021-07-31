@@ -6,8 +6,9 @@ MAINTAINER Roberto Riggio <roberto.riggio@gmail.com>
 
 ENV DEBIAN_FRONTEND noninteractive
 
-ARG TAG=2.3.2
+USER root
 
+# Dependencies for the Open5gs
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
@@ -19,6 +20,8 @@ RUN apt-get update && \
         flex \
         bison \
         git \
+        iputils-ping \
+        nano \
         libsctp-dev \
         libgnutls28-dev \
         libgcrypt-dev \
@@ -35,17 +38,29 @@ RUN apt-get update && \
         iproute2 \
         wget \
         unzip \
-        iptables && \
-    wget https://github.com/open5gs/open5gs/archive/v$TAG.zip && \
-    unzip v$TAG.zip && \
-    rm v$TAG.zip && \
-    cd open5gs-$TAG && \
-    meson build && \
-    ninja -C build install
+        iptables
 
-COPY conf/* /usr/local/etc/open5gs/
+# Fetching Open5gs
+RUN git clone https://github.com/open5gs/open5gs && cd /open5gs && meson build --prefix=`pwd`/install && ninja -C build
 
+RUN cd /open5gs/build && ninja install
+
+# Coping configuration files needed
+COPY conf/* /open5gs/install/etc/open5gs/
+
+# Solve the shared libraries problem
+RUN sh -c "echo /open5gs/install/lib/x86_64-linux-gnu > /etc/ld.so.conf.d/open5gs.conf"
+RUN ldconfig
+
+# Set env variables
+ENV MCC=001
+ENV MNC=01
+ENV TAC=7
+
+# Add Kubernetes config, setup and launch scripts
 ADD setup.sh /
 ADD launcher.sh /
+ADD dns_replace.sh /
 
+# Run the launcher script
 ENTRYPOINT ["/launcher.sh"]

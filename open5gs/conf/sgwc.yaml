@@ -16,76 +16,47 @@
 #
 #  o Set OGS_LOG_TRACE to all domain level
 #    level: trace
-#    domain: core,pfcp,gtp,sgwu,event,tlv,mem,sock
+#    domain: core,pfcp,gtp,sgwc,event,tlv,mem,sock
 #
 logger:
-    file: /open5gs/install/var/log/open5gs/sgwu.log
+    file: /open5gs/install/var/log/open5gs/sgwc.log
+
 #
-# sgwu:
+# sgwc:
+#
+#  <GTP-C Server>
+#
+#  o GTP-C Server(127.0.0.3:2123, [fe80::2%lo]:2123)
+#    gtpc:
+#      addr:
+#        - 127.0.0.3
+#        - fe80::2%lo
+#
+#  o On SGW, Same Configuration(127.0.0.3:2123,
+#  [fe80::2%lo]:2123) as below.
+#    gtpc:
+#      - addr: 127.0.0.3
+#      - addr: fe80::2%lo
 #
 #  <PFCP Server>
 #
-#  o PFCP Server(127.0.0.6:8805, ::1:8805)
+#  o PFCP Server(127.0.0.3:8805, ::1:8805)
 #    pfcp:
-#      - addr: 127.0.0.6
+#      - addr: 127.0.0.3
 #      - addr: ::1
 #
 #  o PFCP-U Server(127.0.0.1:2152, [::1]:2152)
 #    pfcp:
-#      - name: localhost
+#      name: localhost
 #
-#  <GTP-U Server>
-#
-#  o GTP-U Server(127.0.0.6:2152, [::1]:2152)
-#    gtpu:
-#      - addr: 127.0.0.6
-#      - addr: ::1
-#
-#  o GTP-U Server(127.0.0.1:2152, [::1]:2152)
-#    gtpu:
-#      - name: localhost
-#
-#  o User Plane IP Resource information
-#    gtpu:
-#      - addr:
-#        - 127.0.0.6
-#        - ::1
-#        teid_range_indication: 4
-#        teid_range: 10
-#        network_instance: internet
-#        source_interface: 0
-#      - addr: 127.0.10.4
-#        teid_range_indication: 4
-#        teid_range: 5
-#        network_instance: ims
-#        source_interface: 1
-#
-#  o Provide custom SGW-U GTP-U address to be advertised inside S1AP messages
-#    gtpu:
-#      - addr: 10.4.128.21
-#        advertise: 172.24.15.30
-#
-#    gtpu:
-#      - addr: 10.4.128.21
-#        advertise:
-#        - 127.0.0.1
-#        - ::1
-#
-#    gtpu:
-#      - addr: 10.4.128.21
-#        advertise: sgw1.epc.mnc001.mcc001.3gppnetwork.org
-#
-#    gtpu:
-#      - dev: ens3
-#        advertise: sgw1.epc.mnc001.mcc001.3gppnetwork.org
-#
-sgwu:
+sgwc:
+    gtpc:
+      - addr: 127.0.0.3
     pfcp:
-      - addr: 127.0.0.6
-    gtpu:
+      - addr: 127.0.0.3
 
 #
-# sgwc:
+# sgwu:
 #
 #  <PFCP Client>>
 #
@@ -94,7 +65,51 @@ sgwu:
 #    pfcp:
 #      addr: 127.0.0.6
 #
-sgwc:
+#  <SGWU_SELECTION_MODE - EPC only>
+#
+# o Round-Robin
+#   (note that round robin can be disabled for a particular node
+#     by setting flag 'rr' to 0)
+#
+#  sgwu:
+#    pfcp:
+#      - addr: 127.0.0.6
+#      - addr: 127.0.0.12
+#        rr: 0
+#      - addr: 127.0.0.18
+#
+# o SGWU selection by eNodeB TAC
+#   (either single TAC or multiple TACs, DECIMAL representation)
+#
+#  sgwu:
+#    pfcp:
+#      - addr: 127.0.0.6
+#        tac: 1
+#      - addr: 127.0.0.12
+#        tac: [3,5,8]
+#
+# o SGWU selection by UE's APN (either single APN or multiple APNs)
+#
+#  sgwu:
+#    pfcp:
+#      - addr: 127.0.0.6
+#        apn: ims
+#      - addr: 127.0.0.12
+#        apn: [internet, web]
+#
+# o SGWU selection by CellID(e_cell_id: 28bit)
+#   (either single e_cell_id or multiple e_cell_id, HEX representation)
+#
+#  sgwu:
+#    pfcp:
+#      - addr: 127.0.0.6
+#        e_cell_id: 463
+#      - addr: 127.0.0.12
+#        e_cell_id: [123456789, 9413]
+#
+sgwu:
+    pfcp:
+      - addr: 127.0.0.6
 
 #
 # parameter:

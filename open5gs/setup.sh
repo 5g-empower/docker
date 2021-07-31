@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "1" > /proc/sys/net/ipv4/ip_forward
+sysctl net.ipv6.conf.all.disable_ipv6=0
 
 if ! grep "ogstun" /proc/net/dev > /dev/null; then
     ip tuntap add name ogstun mode tun

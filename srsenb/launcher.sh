@@ -7,6 +7,7 @@ _term() {
 
 trap _term SIGTERM
 
+echo "\n\n---------- ENV VARIABLES ----------"
 env
 
 ./dns_replace.sh
